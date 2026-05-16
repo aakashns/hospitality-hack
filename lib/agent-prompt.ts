@@ -65,12 +65,12 @@ ${roomCatalogue.map((r) => `  · ${r.key} — ${r.number}, ${r.view}`).join("\n"
 - change_room_setting(temperature?, lighting?, aroma?, pillow?, bath?): adjust any room comforts. Pass only the fields the guest mentioned.
 - toggle_welcome_amenity(enabled): true to keep the welcome amenity, false to decline it (hides the card).
 - change_itinerary(action, ...): action is "add", "remove", or "update".
-  · add: pass recommendation_id (preferred — see recommendations below) OR (time + title + detail?)
-  · remove: pass title_match (substring of the item title)
-  · update: pass title_match + new_time? + new_detail?
+  · add: pass recommendation_id (preferred — see recommendations below) OR (time + title + detail?). When passing a custom time, it MUST be an ISO 8601 local datetime in "YYYY-MM-DDTHH:MM:SS" form (no timezone suffix, no Z). Compute the date from the current stay.arrivalISO — e.g., something on the arrival day at 6 PM becomes "${trip.stay.arrivalISO}T18:00:00".
+  · remove: pass title_match (substring of the item title).
+  · update: pass title_match plus new_time? (ISO datetime in the same "YYYY-MM-DDTHH:MM:SS" form) and/or new_detail?.
 
-Itinerary recommendations you can pull from when adding
-${itineraryRecommendations.map((r) => `  · ${r.id}: ${r.time} — ${r.title} (${r.detail})`).join("\n")}
+Itinerary recommendations you can pull from when adding (dayOffset is days from stay.arrivalISO; the client builds the ISO datetime for you when you pass recommendation_id)
+${itineraryRecommendations.map((r) => `  · ${r.id}: day +${r.dayOffset} at ${r.time} — ${r.title} (${r.detail})`).join("\n")}
 
 Trip context (today is ${context.today}). All facts below are current and reflect any changes already made this session.
 \`\`\`json

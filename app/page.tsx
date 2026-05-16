@@ -36,6 +36,7 @@ import {
   useTrip,
   nightsBetween,
   formatStayDate,
+  formatItineraryTime,
 } from "@/components/trip-context";
 import { FadeInSection } from "@/components/fade-in-section";
 import { cn } from "@/lib/utils";
@@ -498,29 +499,10 @@ function AmenityCard() {
   );
 }
 
-const DAY_OFFSETS: Record<string, number> = {
-  sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6,
-};
-
-function timeKey(timeStr: string): number {
-  const parts = timeStr.split("·").map((s) => s.trim());
-  const dayKey = parts[1]?.slice(0, 3).toLowerCase() ?? "sun";
-  const dayOffset = (DAY_OFFSETS[dayKey] ?? 0) * 24 * 60;
-  const match = parts[0].match(/(\d+):(\d+)\s*(am|pm)/i);
-  if (!match) return dayOffset;
-  let hours = parseInt(match[1], 10);
-  const mins = parseInt(match[2], 10);
-  const ampm = match[3].toLowerCase();
-  if (ampm === "pm" && hours !== 12) hours += 12;
-  if (ampm === "am" && hours === 12) hours = 0;
-  return dayOffset + hours * 60 + mins;
-}
-
 function ItineraryCard() {
   const { trip } = useTrip();
   const sortedItinerary = useMemo(
-    () =>
-      [...trip.itinerary].sort((a, b) => timeKey(a.time) - timeKey(b.time)),
+    () => [...trip.itinerary].sort((a, b) => a.time.localeCompare(b.time)),
     [trip.itinerary],
   );
 
@@ -576,7 +558,7 @@ function ItineraryCard() {
               )}
             >
               <span className="pt-1 text-xs uppercase tracking-widest text-muted-foreground">
-                {entry.time}
+                {formatItineraryTime(entry.time, trip.stay.arrivalISO)}
               </span>
               <div className="flex flex-col gap-1.5">
                 <span className="text-lg text-foreground">{entry.title}</span>

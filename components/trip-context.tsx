@@ -52,6 +52,44 @@ export function formatStayDate(iso: string): string {
   });
 }
 
+function pad2(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+function toLocalISODateTime(date: Date): string {
+  return (
+    `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}` +
+    `T${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`
+  );
+}
+
+export function formatItineraryTime(iso: string, arrivalISO: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  const arrival = new Date(`${arrivalISO}T00:00:00`);
+  const timeStr = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+  const sameDay = date.toDateString() === arrival.toDateString();
+  if (sameDay) return timeStr;
+  const dayStr = date.toLocaleDateString("en-US", { weekday: "short" });
+  return `${timeStr} · ${dayStr}`;
+}
+
+function buildRecommendationISO(
+  arrivalISO: string,
+  dayOffset: number,
+  time: string,
+): string {
+  const base = new Date(`${arrivalISO}T00:00:00`);
+  base.setDate(base.getDate() + dayOffset);
+  const [h, m] = time.split(":").map(Number);
+  base.setHours(h || 0, m || 0, 0, 0);
+  return toLocalISODateTime(base);
+}
+
 export function nightsBetween(arrivalISO: string, departureISO: string): number {
   const a = new Date(`${arrivalISO}T00:00:00`);
   const d = new Date(`${departureISO}T00:00:00`);
@@ -150,9 +188,13 @@ export function TripProvider({ children }: { children: React.ReactNode }) {
       addItineraryRecommendation: (id) => {
         const rec = initial.itineraryRecommendations.find((r) => r.id === id);
         if (!rec) return null;
-        // Strip id when storing
+        const iso = buildRecommendationISO(
+          tripRef.current.stay.arrivalISO,
+          rec.dayOffset,
+          rec.time,
+        );
         const item: ItineraryItem = {
-          time: rec.time,
+          time: iso,
           title: rec.title,
           detail: rec.detail,
         };
