@@ -12,16 +12,13 @@ export const stay = {
   suite: "Hillside Suite · 214",
   arrivalISO: "2026-05-17",
   departureISO: "2026-05-20",
-  arrival: "Sunday, May 17",
-  departure: "Wednesday, May 20",
-  nights: 3,
   checkIn: "1:00 PM",
   checkOut: "12:00 PM",
 };
 
 export const host = {
   name: "Elena Petrova",
-  role: "Property Host · 4 years with Rosewood",
+  role: "Concierge · 4 years with Rosewood",
   presence: "On property today · 7 AM – 11 PM",
   ext: "ext. 4214",
   phone: "+1-650-555-0177",
@@ -124,7 +121,7 @@ export const amenity: Amenity = {
   origin: "Ridge Vineyards · Cupertino · 11 mi",
   why: "From your tasting notes at Hotel Crescent Court — you favored the Bordeaux-leaning Cabernets.",
   pairing: "Plated with Sonoma chèvre and Marcona almonds",
-  note: "— with regards, Étienne, Head Concierge",
+  note: "— with regards, Elena Petrova, Concierge",
 };
 
 export type ItineraryItem = {
@@ -247,7 +244,7 @@ export const itineraryRecommendations: Recommendation[] = [
 export const senseOfPlace = {
   title: "The grove your suite looks onto",
   body:
-    "The valley oaks behind Hillside 214 are older than Sand Hill Road itself — surveyed in 1858. The artwork above your desk is by Ana Teresa Fernández, who grew up forty minutes south in Salinas. She'll be in residence at the property Tuesday evening if you'd like to meet.",
+    "The valley oaks behind Hillside 214 are older than Sand Hill Road itself, surveyed in 1858. The artwork above your desk is by Ana Teresa Fernández, who grew up forty minutes south in Salinas.",
   meta: "Curated by Étienne, drawn from your prior interest in Bay Area artists.",
 };
 

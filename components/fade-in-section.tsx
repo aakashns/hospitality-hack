@@ -42,7 +42,7 @@ export function FadeInSection({
         transitionDuration: "1100ms",
       }}
       className={cn(
-        "transition-[opacity,transform] ease-out will-change-transform",
+        "scroll-mt-16 transition-[opacity,transform] ease-out will-change-transform",
         visible
           ? "translate-y-0 opacity-100"
           : "translate-y-8 opacity-0",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import {
   Plane,
@@ -31,8 +31,14 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { VoiceChat } from "@/components/voice-chat";
-import { TripProvider, useTrip } from "@/components/trip-context";
+import {
+  TripProvider,
+  useTrip,
+  nightsBetween,
+  formatStayDate,
+} from "@/components/trip-context";
 import { FadeInSection } from "@/components/fade-in-section";
+import { cn } from "@/lib/utils";
 
 export default function Page() {
   return (
@@ -52,9 +58,8 @@ function PageContent() {
     ...(trip.amenity.enabled
       ? [{ id: "section-amenity", Component: AmenityCard }]
       : []),
-    { id: "section-itinerary", Component: ItineraryCard },
-    { id: "section-place", Component: SenseOfPlaceCard },
     { id: "section-wellness", Component: WellnessCard },
+    { id: "section-itinerary", Component: ItineraryCard },
     { id: "section-privacy", Component: PrivacyCard },
   ];
 
@@ -125,6 +130,10 @@ function PageContent() {
 
 function TripHeaderCard() {
   const { trip } = useTrip();
+  const nights = useMemo(
+    () => nightsBetween(trip.stay.arrivalISO, trip.stay.departureISO),
+    [trip.stay.arrivalISO, trip.stay.departureISO],
+  );
   return (
     <Card>
       <Image
@@ -138,15 +147,21 @@ function TripHeaderCard() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <Badge>This stay</Badge>
-          <Badge variant="ghost">{trip.stay.nights} nights</Badge>
+          <Badge variant="ghost">{nights} nights</Badge>
         </div>
         <CardTitle className="text-2xl">{trip.stay.property}</CardTitle>
         <CardDescription>{trip.stay.suite}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-7">
         <div className="grid grid-cols-2 gap-x-6 gap-y-7">
-          <Field label="Arrival" value={trip.stay.arrival} />
-          <Field label="Departure" value={trip.stay.departure} />
+          <Field
+            label="Arrival"
+            value={formatStayDate(trip.stay.arrivalISO)}
+          />
+          <Field
+            label="Departure"
+            value={formatStayDate(trip.stay.departureISO)}
+          />
           <Field label="Check-in" value={trip.stay.checkIn} />
           <Field label="Check-out" value={trip.stay.checkOut} />
         </div>
@@ -156,6 +171,18 @@ function TripHeaderCard() {
         <HostBlock />
       </CardContent>
     </Card>
+  );
+}
+
+function SenseOfPlaceBlock() {
+  const { trip } = useTrip();
+  return (
+    <div className="flex flex-col gap-3">
+      <SectionEyebrow icon={Trees} label="A sense of place" />
+      <p className="text-base leading-relaxed text-foreground/90">
+        {trip.senseOfPlace.body}
+      </p>
+    </div>
   );
 }
 
@@ -366,28 +393,34 @@ function RoomCard() {
         <CardTitle className="text-2xl">{room.number}</CardTitle>
         <CardDescription>{room.view}</CardDescription>
       </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-x-6 gap-y-7">
-        <Field
-          label="Climate"
-          value={`${room.climateF}°F`}
-          icon={Thermometer}
-        />
-        <Field label="Lighting" value={room.scene} icon={Sparkles} />
-        <Field label="Aromatherapy" value={room.aromatherapy} />
-        <Field label="Pillow" value={room.pillow} />
-        <div className="col-span-2">
-          <Field label="Bath" value={room.bath} icon={Droplets} />
+      <CardContent className="flex flex-col gap-7">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-7">
+          <Field
+            label="Climate"
+            value={`${room.climateF}°F`}
+            icon={Thermometer}
+          />
+          <Field label="Lighting" value={room.scene} icon={Sparkles} />
+          <Field label="Aromatherapy" value={room.aromatherapy} />
+          <Field label="Pillow" value={room.pillow} />
+          <div className="col-span-2">
+            <Field label="Bath" value={room.bath} icon={Droplets} />
+          </div>
+          <div className="col-span-2 flex flex-wrap gap-x-4 gap-y-1 pt-1">
+            {room.signals.map((s) => (
+              <span
+                key={s}
+                className="text-xs uppercase tracking-widest text-muted-foreground"
+              >
+                · {s}
+              </span>
+            ))}
+          </div>
         </div>
-        <div className="col-span-2 flex flex-wrap gap-x-4 gap-y-1 pt-1">
-          {room.signals.map((s) => (
-            <span
-              key={s}
-              className="text-xs uppercase tracking-widest text-muted-foreground"
-            >
-              · {s}
-            </span>
-          ))}
-        </div>
+
+        <Separator />
+
+        <SenseOfPlaceBlock />
       </CardContent>
     </Card>
   );
@@ -490,6 +523,38 @@ function ItineraryCard() {
       [...trip.itinerary].sort((a, b) => timeKey(a.time) - timeKey(b.time)),
     [trip.itinerary],
   );
+
+  const [flashing, setFlashing] = useState<Set<string>>(new Set());
+  const prevItemsRef = useRef<Map<string, string>>(new Map());
+  const initialMountRef = useRef(true);
+
+  useEffect(() => {
+    const currentMap = new Map(
+      trip.itinerary.map((i) => [i.title, `${i.time}|${i.detail}`]),
+    );
+    if (initialMountRef.current) {
+      initialMountRef.current = false;
+      prevItemsRef.current = currentMap;
+      return;
+    }
+    const changed: string[] = [];
+    for (const [title, signature] of currentMap) {
+      const prev = prevItemsRef.current.get(title);
+      if (prev === undefined || prev !== signature) changed.push(title);
+    }
+    prevItemsRef.current = currentMap;
+    if (changed.length === 0) return;
+    setFlashing((prev) => new Set([...prev, ...changed]));
+    const t = window.setTimeout(() => {
+      setFlashing((prev) => {
+        const next = new Set(prev);
+        changed.forEach((title) => next.delete(title));
+        return next;
+      });
+    }, 1900);
+    return () => window.clearTimeout(t);
+  }, [trip.itinerary]);
+
   return (
     <Card>
       <CardHeader>
@@ -505,7 +570,10 @@ function ItineraryCard() {
           {sortedItinerary.map((entry) => (
             <li
               key={entry.title}
-              className="grid grid-cols-[6.5rem_1fr] gap-5 border-t border-border/60 py-4 first:border-t-0 first:pt-0 last:pb-0"
+              className={cn(
+                "grid grid-cols-[6.5rem_1fr] gap-5 border-t border-border/60 py-4 first:border-t-0 first:pt-0 last:pb-0",
+                flashing.has(entry.title) && "field-flash",
+              )}
             >
               <span className="pt-1 text-xs uppercase tracking-widest text-muted-foreground">
                 {entry.time}
@@ -519,27 +587,6 @@ function ItineraryCard() {
             </li>
           ))}
         </ul>
-      </CardContent>
-    </Card>
-  );
-}
-
-function SenseOfPlaceCard() {
-  const { trip } = useTrip();
-  const { senseOfPlace } = trip;
-  return (
-    <Card>
-      <CardHeader>
-        <SectionEyebrow icon={Trees} label="A sense of place" />
-        <CardTitle className="text-2xl">{senseOfPlace.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-5">
-        <p className="text-base leading-relaxed text-foreground/90">
-          {senseOfPlace.body}
-        </p>
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">
-          {senseOfPlace.meta}
-        </p>
       </CardContent>
     </Card>
   );
@@ -601,6 +648,19 @@ function SectionEyebrow({
   );
 }
 
+function useFlashOnChange(value: unknown, duration = 1900) {
+  const [flash, setFlash] = useState(false);
+  const prevRef = useRef(value);
+  useEffect(() => {
+    if (prevRef.current === value) return;
+    prevRef.current = value;
+    setFlash(true);
+    const t = window.setTimeout(() => setFlash(false), duration);
+    return () => window.clearTimeout(t);
+  }, [value, duration]);
+  return flash;
+}
+
 function Field({
   label,
   value,
@@ -612,8 +672,9 @@ function Field({
   icon?: React.ComponentType<{ className?: string }>;
   accent?: boolean;
 }) {
+  const flash = useFlashOnChange(value);
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className={cn("flex flex-col gap-1.5", flash && "field-flash")}>
       <span className="text-xs uppercase tracking-widest text-muted-foreground">
         {label}
       </span>

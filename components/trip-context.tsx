@@ -42,7 +42,7 @@ const initialTrip: Trip = {
   assistant: initial.assistant,
 };
 
-function formatStayDate(iso: string): string {
+export function formatStayDate(iso: string): string {
   const d = new Date(`${iso}T00:00:00`);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("en-US", {
@@ -52,7 +52,7 @@ function formatStayDate(iso: string): string {
   });
 }
 
-function nightsBetween(arrivalISO: string, departureISO: string): number {
+export function nightsBetween(arrivalISO: string, departureISO: string): number {
   const a = new Date(`${arrivalISO}T00:00:00`);
   const d = new Date(`${departureISO}T00:00:00`);
   if (Number.isNaN(a.getTime()) || Number.isNaN(d.getTime())) return 0;
@@ -99,22 +99,30 @@ export function TripProvider({ children }: { children: React.ReactNode }) {
       trip,
 
       patchStay: ({ arrival, departure }) => {
-        const aISO = arrival ? toISODate(arrival) : tripRef.current.stay.arrivalISO;
-        const dISO = departure ? toISODate(departure) : tripRef.current.stay.departureISO;
-        if (!aISO || !dISO) return { ok: false, nights: tripRef.current.stay.nights };
-        const nights = nightsBetween(aISO, dISO);
+        const aISO = arrival
+          ? toISODate(arrival)
+          : tripRef.current.stay.arrivalISO;
+        const dISO = departure
+          ? toISODate(departure)
+          : tripRef.current.stay.departureISO;
+        if (!aISO || !dISO) {
+          return {
+            ok: false,
+            nights: nightsBetween(
+              tripRef.current.stay.arrivalISO,
+              tripRef.current.stay.departureISO,
+            ),
+          };
+        }
         setTrip((t) => ({
           ...t,
           stay: {
             ...t.stay,
             arrivalISO: aISO,
             departureISO: dISO,
-            arrival: formatStayDate(aISO),
-            departure: formatStayDate(dISO),
-            nights,
           },
         }));
-        return { ok: true, nights };
+        return { ok: true, nights: nightsBetween(aISO, dISO) };
       },
 
       setRoomOption: (key) => {
