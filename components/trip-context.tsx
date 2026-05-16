@@ -112,7 +112,7 @@ type TripContextValue = {
   patchStay: (patch: {
     arrival?: string;
     departure?: string;
-  }) => { ok: boolean; nights: number };
+  }) => { ok: boolean; nights: number; shiftedDays: number };
   setRoomOption: (key: string) => Room | null;
   patchRoom: (patch: Partial<Room>) => void;
   patchAmenity: (patch: Partial<Amenity>) => void;
@@ -137,9 +137,8 @@ export function TripProvider({ children }: { children: React.ReactNode }) {
       trip,
 
       patchStay: ({ arrival, departure }) => {
-        const aISO = arrival
-          ? toISODate(arrival)
-          : tripRef.current.stay.arrivalISO;
+        const oldArrivalISO = tripRef.current.stay.arrivalISO;
+        const aISO = arrival ? toISODate(arrival) : oldArrivalISO;
         const dISO = departure
           ? toISODate(departure)
           : tripRef.current.stay.departureISO;
@@ -150,8 +149,13 @@ export function TripProvider({ children }: { children: React.ReactNode }) {
               tripRef.current.stay.arrivalISO,
               tripRef.current.stay.departureISO,
             ),
+            shiftedDays: 0,
           };
         }
+        const oldArrival = new Date(`${oldArrivalISO}T00:00:00`);
+        const newArrival = new Date(`${aISO}T00:00:00`);
+        const deltaMs = newArrival.getTime() - oldArrival.getTime();
+        const shiftedDays = Math.round(deltaMs / (1000 * 60 * 60 * 24));
         setTrip((t) => ({
           ...t,
           stay: {
@@ -159,8 +163,16 @@ export function TripProvider({ children }: { children: React.ReactNode }) {
             arrivalISO: aISO,
             departureISO: dISO,
           },
+          itinerary:
+            deltaMs === 0
+              ? t.itinerary
+              : t.itinerary.map((item) => {
+                  const shifted = new Date(item.time);
+                  shifted.setTime(shifted.getTime() + deltaMs);
+                  return { ...item, time: toLocalISODateTime(shifted) };
+                }),
         }));
-        return { ok: true, nights: nightsBetween(aISO, dISO) };
+        return { ok: true, nights: nightsBetween(aISO, dISO), shiftedDays };
       },
 
       setRoomOption: (key) => {

@@ -101,10 +101,15 @@ function VoiceChatInner({ assistantName }: { assistantName: string }) {
       arrival?: string;
       departure?: string;
     };
-    const { ok, nights } = patchStay({ arrival, departure });
-    return ok
-      ? `Stay updated · ${nights} night${nights === 1 ? "" : "s"}.`
-      : `Couldn't parse the dates provided.`;
+    const { ok, nights, shiftedDays } = patchStay({ arrival, departure });
+    if (!ok) return `Couldn't parse the dates provided.`;
+    let msg = `Stay updated · ${nights} night${nights === 1 ? "" : "s"}.`;
+    if (shiftedDays !== 0) {
+      const abs = Math.abs(shiftedDays);
+      const direction = shiftedDays > 0 ? "later" : "earlier";
+      msg += ` Itinerary moved ${abs} day${abs === 1 ? "" : "s"} ${direction}.`;
+    }
+    return msg;
   });
 
   useConversationClientTool("change_room", (params) => {
