@@ -42,12 +42,12 @@ NEXT_PUBLIC_ELEVENLABS_AGENT_ID=agent_xxxxxxxxxxxxxxxxxxxxxxxx
 
 The agent must be configured in the ElevenLabs dashboard as Public, with system-prompt and first-message overrides enabled. The agent must have the following client tools configured on the Eleven Labs dashboard:
 
-- `scroll_to_section` — bring a card into view, with a soft amber pulse to draw attention
-- `change_stay` — adjust arrival or departure (ISO dates); nights are recomputed
-- `change_room` — switch between Hillside Suite, Vineyard Suite, or Tree House Bungalow
-- `change_room_setting` — adjust temperature, lighting, aromatherapy, pillow, bath
-- `toggle_welcome_amenity` — accept or decline the welcome amenity
-- `change_itinerary` — add (from a curated list of 13 recommendations), remove, or update activities
+- `scroll_to_section`: bring a card into view, with a soft amber pulse to draw attention
+- `change_stay`: adjust arrival or departure (ISO dates); nights are recomputed
+- `change_room`: switch between Hillside Suite, Vineyard Suite, or Tree House Bungalow
+- `change_room_setting`: adjust temperature, lighting, aromatherapy, pillow, bath
+- `toggle_welcome_amenity`: accept or decline the welcome amenity
+- `change_itinerary`: add (from a curated list of 13 recommendations), remove, or update activities
 
 **NOTE:** Without an agent ID, the app falls back to a scripted demo so the voice surface still works.
 
@@ -61,7 +61,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Where to look
 
-- `app/page.tsx` — the single-screen layout, cards, fade-in animation, field-flash on change
-- `components/voice-chat.tsx` — floating Sera surface, session lifecycle, client tool handlers
-- `components/trip-context.tsx` — typed trip state and the mutation surface tools call into
-- `lib/agent-prompt.ts` — dynamic system prompt built per session from the current trip + conversation history
+- `app/page.tsx`: the single-screen layout, cards, fade-in animation, field-flash on change
+- `components/voice-chat.tsx`: floating Sera surface, session lifecycle, client tool handlers
+- `components/trip-context.tsx`: typed trip state and the mutation surface tools call into
+- `lib/agent-prompt.ts`: dynamic system prompt built per session from the current trip + conversation history
