@@ -11,16 +11,18 @@ https://github.com/user-attachments/assets/5543ac78-48cf-447f-88b1-d3444ba51773
 Based on the booking & flight details, and the guest's previous stay at Rosewood hotels, Sera schedules pick-up, sets the room ambience, and recommends activities at the property.
 
 On the booking page, guests do the following simply by talking to Sera:
-- Review details about their stay, flight, pick-up etc.
-- Change their check in (arrival) & check out (departure) dates 
-- Request room temperature, lighting, aroma, bath water changes
-- Review recommended activities & reschedule them if needed
-- learn more about the neighborhood and place of interest
-- and much more..
+1. Review details about their stay, flight, pick-up etc.
+2. Change their check in (arrival) & check out (departure) dates 
+3. Change the type of room they're staying in (e.g. hillside, vineyard)
+4. Request room temperature, lighting, aroma, bath water changes
+5. Review recommended activities & reschedule them if needed
+6. learn more about the neighborhood and place of interest
+7. and much more..
 
 The experience of talking to Sera on the booking page is almost magical: 
 - As you ask for information, the page is automatically scrolled to the relevant section. 
-- When you request changes, they are highlighted on the screen to offer real-time feedback. - You can view a transcript of your conversation with Sera as an overlay or hide it away.
+- When you request changes, they are highlighted on the screen to offer real-time feedback. 
+- You can view a transcript of your conversation with Sera as an overlay or hide it away.
 All of this is achieved using tools made available to the agent.
 
 The app is built using React & Next.js, and it uses Eleven Labs for text-to-speech and speech-to-text and Claude 4.5 Sonnet as the intelligence layer.
