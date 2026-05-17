@@ -4,8 +4,6 @@ Built for **Hospitality 2030**, a Rosewood Sand Hill hackathon (Anthropic, Eleve
 
 This project demonstrates what the hotel arrival & stay experience of the future looks like.
 
-Click the image below to watch a demo video:
-
 https://github.com/user-attachments/assets/5543ac78-48cf-447f-88b1-d3444ba51773
 
 "Sera" is a voice-based AI concierge for Rosewood hotels & resorts to provide a carefully crafted personalized welcome & stay for regular guests. Guests feel recognized & cared for.
