@@ -2,7 +2,7 @@
 
 Built for **Hospitality 2030**, a Rosewood Sand Hill hackathon (Anthropic, ElevenLabs, Greycroft).
 
-This project demonstrates what the hotel arrival & stay experience of the future looks like.
+This project demonstrates what the hotel arrival & stay experience of the future looks like. Demo (turn on sound):
 
 https://github.com/user-attachments/assets/5543ac78-48cf-447f-88b1-d3444ba51773
 
