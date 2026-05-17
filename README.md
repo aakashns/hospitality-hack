@@ -12,7 +12,7 @@ https://github.com/user-attachments/assets/5543ac78-48cf-447f-88b1-d3444ba51773
 
 Based on the booking & flight details, and the guest's previous stay at Rosewood hotels, Sera schedules pick-up, sets the room ambience, and recommends activities at the property.
 
-On the booking page, guests do the following simply by talking to Sera:
+On the booking page, guests can do the following simply by talking to Sera:
 1. Review details about their stay, flight, pick-up etc.
 2. Change their check in (arrival) & check out (departure) dates 
 3. Change the type of room they're staying in (e.g. hillside, vineyard)
